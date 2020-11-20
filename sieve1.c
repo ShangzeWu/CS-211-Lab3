@@ -90,12 +90,12 @@ int main (int argc, char *argv[])
          }
       } 
       for (i = first; i < size; i += prime) marked[i] = 1; //步长是prime
-      if (id==0) {
+      if (id==0) { //0号processor负责寻找下一个prime。
          while (marked[++index]!=0); //循环执行到当前maeked[index]==0， 保留index的值
          prime = 2 * index + 3;   //将index转换成对应的prime。
       }
-      if (p > 1) MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);
-   } while (prime * prime <= n);
+      if (p > 1) MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);  //如果不止一个processor，需要同步prime。
+   } while (prime * prime <= n); //停止寻找下一个prime。
    count = 0;
    for (i = 0; i < size; i++)
       if (marked[i]==0) count++; //统计当前processor下的prime数量
