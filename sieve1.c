@@ -43,13 +43,14 @@ int main (int argc, char *argv[])
 
    /* Add you code here  */
       /* Add you code here  */
-   //let even number be 2*i+2, odd number is 2*i+3, 10^10 number has 5*10^9 even.
-   unsigned long int oddn = n - n / 2 - 1; 
-   unsigned long int low_value_idx = id * oddn / p;
-   unsigned long int high_value_idx = -1 + (id + 1) * oddn / p;
-   size = high_value_idx - low_value_idx + 1;
-   low_value = 2 * low_value_idx + 3;
-   high_value = 2 * high_value_idx + 3;
+   
+   
+   unsigned long int oddn = n - n / 2 - 1;  //排除1和偶数之后的总数量
+   unsigned long int low_value_idx = id * oddn / p; //同一个processor中最小的下标
+   unsigned long int high_value_idx = -1 + (id + 1) * oddn / p; //最大的下标
+   size = high_value_idx - low_value_idx + 1; //array的大小
+   low_value = 2 * low_value_idx + 3;  //array中最小的值
+   high_value = 2 * high_value_idx + 3; //array中最大的值
 
    /* Bail out if all the primes used for sieving are
       not all held by process 0 */
@@ -72,14 +73,14 @@ int main (int argc, char *argv[])
       exit(1);
    }
 
-   for (i = 0; i < size; i++) marked[i] = 0;
-   if (!id) index = 0;
+   for (i = 0; i < size; i++) marked[i] = 0;  //marked 全部赋值成0
+   if (id==0) index = 0;
    prime = 3;
    do {
-      if (prime * prime > low_value)
+      if (prime * prime > low_value)   //筛选processor， 0号满足，1号及以后不满足
          first = (prime * prime - low_value) / 2;
          //odd number minuses odd number = even number, divide by 2 to find index
-      else {
+      else { //1号及以后不满足
          if (!(low_value % prime)) first = 0;
          else 
          {
@@ -91,15 +92,15 @@ int main (int argc, char *argv[])
       }
       //dont need change stride = 2*prime/2 = prime, 
       for (i = first; i < size; i += prime) marked[i] = 1;
-      if (!id) {
-         while (marked[++index]);
-         prime = 2 * index + 3;
+      if (id==0) {
+         while (marked[++index]!=0); //循环执行到当前maeked[index]==0， 保留index的值
+         prime = 2 * index + 3;   //将index转换成对应的prime。
       }
       if (p > 1) MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);
    } while (prime * prime <= n);
    count = 0;
    for (i = 0; i < size; i++)
-      if (!marked[i]) count++;
+      if (marked[i]==0) count++; //统计当前processor下的prime数量
    if (p > 1)
       MPI_Reduce(&count, &global_count, 1, MPI_INT, MPI_SUM,
                   0, MPI_COMM_WORLD);
