@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
          first = (prime * prime - low_value) / 2;
          //odd number minuses odd number = even number, divide by 2 to find index
       else { //1号及以后不满足
-         if (!(low_value % prime)) first = 0;
+         if ((low_value % prime)==0) first = 0;
          else 
          {
             first = (low_value / prime + 1) * prime;
@@ -106,7 +106,7 @@ int main (int argc, char *argv[])
                   0, MPI_COMM_WORLD);
 
    global_count++;
-   //add 2 
+   //算上‘2’ 
 
 
 
