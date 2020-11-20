@@ -85,13 +85,11 @@ int main (int argc, char *argv[])
          else 
          {
             first = (low_value / prime + 1) * prime;
-            first = ((first - low_value) % 2) == 0 ? first : first + prime;
-            //make sure first is odd
-            first = (first - low_value) / 2;
+            first = ((first - low_value) % 2) == 0 ? first : first + prime; //确保是奇数
+            first = (first - low_value) / 2;  //换算成对应的array中的index
          }
-      }
-      //dont need change stride = 2*prime/2 = prime, 
-      for (i = first; i < size; i += prime) marked[i] = 1;
+      } 
+      for (i = first; i < size; i += prime) marked[i] = 1; //步长是prime
       if (id==0) {
          while (marked[++index]!=0); //循环执行到当前maeked[index]==0， 保留index的值
          prime = 2 * index + 3;   //将index转换成对应的prime。
