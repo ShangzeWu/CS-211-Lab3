@@ -100,7 +100,7 @@ int main (int argc, char *argv[])
    } while (prime * prime <= tempn);
 
 
-   unsigned long int blockSize = 20000;
+   unsigned long int blockSize = 100000;
    unsigned long int itr = size / blockSize;
    unsigned long int blockStart = 0;
    if (size % blockSize) itr++; //除不尽的情况下， itr加1
