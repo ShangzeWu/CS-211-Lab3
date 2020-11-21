@@ -33,6 +33,7 @@ int main (int argc, char *argv[])
    unsigned long int  local_prime;        /* Current prime */
    unsigned long int    size;         /* Elements in 'marked' */
    unsigned long int  local_prime_size;
+   char  *marked2;
 
 
    MPI_Init (&argc, &argv);
