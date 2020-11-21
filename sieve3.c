@@ -94,7 +94,7 @@ int main (int argc, char *argv[])
    prime = 3;
    do {
       for (i = (prime * 3 - 3) / 2; i < size2; i += prime) marked2[i] = 1;
-         while (marked2[++index]！=0);
+         while (marked2[++index]!=0);
          prime = 2 * index + 3;
    } while (prime * prime <= n);
 
