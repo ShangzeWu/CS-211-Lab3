@@ -56,18 +56,16 @@ int main (int argc, char *argv[])
       well as the integers represented by the first and
       last array elements */
 
-   /* Add you code here  */
+   unsigned long int oddn = n - n / 2 - 1;  //排除1和偶数之后的总数量
 
+   unsigned long int size2 = (int) sqrt((double) n) + 1; //根号n的大小
+                     size2 = size2 - size2 / 2 - 1;      //去除偶数部分和1
 
-
-unsigned long long int oddn = n - n / 2 - 1; 
-   unsigned long int size2 = (int) sqrt((double) n) + 1;
-                 size2 = size2 - size2 / 2 - 1; 
-   unsigned long long int low_value_idx = id * oddn / p;
-   unsigned long long int high_value_idx = -1 + (id + 1) * oddn / p;
-   size = high_value_idx - low_value_idx + 1;
-   low_value = 2 * low_value_idx + 3;
-   high_value = 2 * high_value_idx + 3;
+   unsigned long int low_value_idx = id * oddn / p; //同一个processor中最小的下标
+   unsigned long int high_value_idx = -1 + (id + 1) * oddn / p; //最大的下标
+   size = high_value_idx - low_value_idx + 1; //array的大小
+   low_value = 2 * low_value_idx + 3;  //array中最小的值
+   high_value = 2 * high_value_idx + 3; //array中最大的值
 
    /* Bail out if all the primes used for sieving are
       not all held by process 0 */
@@ -83,7 +81,7 @@ unsigned long long int oddn = n - n / 2 - 1;
    /* Allocate this process's share of the array. */
 
    marked = (char *) malloc(size);
-   char  *marked2 = (char *) malloc(size2); 
+   marked2 = (char *) malloc(size2); 
 
    if (marked == NULL) {
       printf("Cannot allocate enough memory\n");
@@ -91,58 +89,49 @@ unsigned long long int oddn = n - n / 2 - 1;
       exit(1);
    }
 
-   for (i = 0; i < size; i++) marked[i] = 0;
-   for (i = 0; i < size2; i++) marked2[i] = 0;
-   //seperate to increase cache hit, 10^5 < cache
+   for (i = 0; i < size; i++) marked[i] = 0;  //marked 全部赋值成0
+   for (i = 0; i < size2; i++) marked2[i] = 0; 
+
+   //以下do-while循环用于在各个processor中计算根号n范围内的质数，如果是非质数，标注为1.
    index = 0;
    prime = 3;
    do {
       for (i = (prime * 3 - 3) / 2; i < size2; i += prime) marked2[i] = 1;
-         while (marked2[++index]);
+         while (marked2[++index]！=0);
          prime = 2 * index + 3;
    } while (prime * prime <= n);
 
-   /*if (!id)*/ index = 0;
+   index = 0;
    prime = 3;
    do {
-      if (prime * prime > low_value)
+      if (prime * prime > low_value)   //筛选processor， 0号满足，1号及以后不满足
          first = (prime * prime - low_value) / 2;
          //odd number minuses odd number = even number, divide by 2 to find index
-      else {
-         if (!(low_value % prime)) first = 0;
+      else { //1号及以后不满足
+         if ((low_value % prime)==0) first = 0;
          else 
          {
             first = (low_value / prime + 1) * prime;
-            first = ((first - low_value) % 2) == 0 ? first : first + prime;
-            //make sure first is odd
-            first = (first - low_value) / 2;
+            first = ((first - low_value) % 2) == 0 ? first : first + prime; //确保是奇数
+            first = (first - low_value) / 2;  //换算成对应的array中的index
          }
-      }
-      //dont need change stride = 2*prime/2 = prime, 
-      for (i = first; i < size; i += prime) marked[i] = 1;
-      //for (i = (prime * 3 - 3) / 2; i < size2; i += prime) marked2[i] = 1;
+      } 
+      for (i = first; i < size; i += prime) marked[i] = 1; //步长是prime
+      
+      while (marked2[++index]!=0); //循环执行到当前maeked[index]==0， 保留index的值
+      prime = 2 * index + 3;   //将index转换成对应的prime。
 
-      /*if (!id) {*/
-         while (marked2[++index]);
-         prime = 2 * index + 3;
-      /*}*/
-      /*if (p > 1) MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);*/
-   } while (prime * prime <= high_value);
+   } while (prime * prime <= high_value); //停止寻找下一个prime。
+
    count = 0;
    for (i = 0; i < size; i++)
-      if (!marked[i]) count++;
+      if (marked[i]==0) count++; //统计当前processor下的prime数量
    if (p > 1)
       MPI_Reduce(&count, &global_count, 1, MPI_INT, MPI_SUM,
                   0, MPI_COMM_WORLD);
 
    global_count++;
-
-
-
-
-
-
-
+   //算上‘2’ 
 
 
 
