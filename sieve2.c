@@ -96,11 +96,12 @@ int main (int argc, char *argv[])
    //以下do-while循环用于在各个processor中计算根号n范围内的质数，如果是非质数，标注为1.
    index = 0;
    prime = 3;
+   int tempn = (int) sqrt((double) n);
    do {
       for (i = (prime * 3 - 3) / 2; i < size2; i += prime) marked2[i] = 1;
          while (marked2[++index]!=0);
          prime = 2 * index + 3;
-   } while (prime * prime <= n);
+   } while (prime * prime <= tempn);
 
    index = 0;
    prime = 3;
