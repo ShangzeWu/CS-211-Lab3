@@ -41,7 +41,7 @@ int main (int argc, char *argv[])
    n = atoll(argv[1]);
    /* Stop the timer */
    
-   unsigned long int oddn = n - n / 2 - 1;  //排除1和偶数之后的总数量
+   unsigned long int oddn = n / 2 - 1;  //排除1和偶数之后的总数量
    unsigned long int low_value_idx = id * oddn / p; //同一个processor中最小的下标
    unsigned long int high_value_idx = -1 + (id + 1) * oddn / p; //最大的下标
    size = high_value_idx - low_value_idx + 1; //array的大小
